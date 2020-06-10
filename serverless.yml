@@ -1,0 +1,39 @@
+service: tradetrust-storage-api
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: ${opt:stage, 'stg'}
+  region: ap-southeast-1
+  environment:
+    AWS_XRAY_CONTEXT_MISSING: LOG_ERROR
+  tracing:
+    lambda: true
+    apiGateway: true
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - xray:PutTraceSegments
+        - xray:PutTelemetryRecords
+      Resource: "*"
+
+# resources:
+#   Resources:
+
+functions:
+  helloWorld:
+    handler: src/functionHandlers/helloWorld/index.handler
+    events:
+      - http:
+          path: /hello
+          method: get
+          cors: true
+custom:
+  webpack:
+    includeModules: true
+
+plugins:
+  - serverless-webpack
+  - serverless-dotenv-plugin
+  - serverless-s3-local
+  - serverless-offline
